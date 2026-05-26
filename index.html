@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaPulse Fitness — Owner Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1a2a1a;--green:#7abf5a;--green-deep:#3a8c3a;--green-light:#f0f7eb;
+  --bg:#eef3ee;--card:#fff;--border:rgba(26,42,26,0.09);
+  --text:#1a2a1a;--dim:rgba(26,42,26,0.45);--faint:rgba(26,42,26,0.22);
+  --red:#c0392b;--red-bg:#fdf0ef;--amber:#c47c10;--amber-bg:#fdf5e8;
+  --blue:#2471a3;--purple:#7d3c98;
+  --shadow:0 2px 10px rgba(26,42,26,0.07);
+}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;min-height:100vh}
+
+/* ── TOPBAR ─────────────────────────────────────────── */
+.topbar{background:var(--dark);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 3px 16px rgba(0,0,0,0.28)}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-size:23px;font-weight:700;letter-spacing:4px;color:#fff;line-height:1}
+.brand-name span{color:var(--green)}
+.brand-sub{font-size:9px;letter-spacing:2.5px;color:rgba(255,255,255,0.28);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:9px}
+.live-pill{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:1.5px;color:var(--green);padding:5px 13px;border-radius:20px;border:0.5px solid rgba(122,191,90,0.3);background:rgba(122,191,90,0.08)}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.clock-pill{font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.38);padding:5px 13px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.1)}
+.export-btn{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:1.5px;font-weight:700;color:var(--dark);background:var(--green);padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;border:none;transition:opacity .2s;text-transform:uppercase}
+.export-btn:hover{opacity:.85}
+
+/* ── NAVIGATION ─────────────────────────────────────── */
+.navbar{background:var(--dark);border-top:0.5px solid rgba(255,255,255,0.07);padding:0 28px;display:flex;gap:0}
+.nav-tab{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.38);padding:12px 18px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;user-select:none;display:flex;align-items:center;gap:7px}
+.nav-tab i{font-size:14px}
+.nav-tab:hover{color:rgba(255,255,255,.65)}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+
+/* ── PANELS ─────────────────────────────────────────── */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.content{padding:20px 28px;display:flex;flex-direction:column;gap:14px}
+
+/* ── KPI ROW ─────────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.kpi{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 14px 14px;border-top:3px solid var(--accent,var(--green));box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;right:0;width:55px;height:55px;background:radial-gradient(circle at top right,var(--accent,var(--green)) 0%,transparent 70%);opacity:.07;pointer-events:none}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,42,26,0.1)}
+.kpi-icon{font-size:18px;color:var(--accent,var(--green));margin-bottom:6px;opacity:.7}
+.kpi-label{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:10px;color:var(--dim);margin-top:5px}
+.kpi-sub .up{color:var(--green-deep);font-weight:600}
+.kpi-sub .dn{color:var(--red);font-weight:600}
+.kpi-sub .neutral{color:var(--text);font-weight:500}
+
+/* ── GRID ROWS ───────────────────────────────────────── */
+.row2{display:grid;grid-template-columns:1.6fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.row-eq{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── CARDS ───────────────────────────────────────────── */
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2.5px;color:var(--dim);text-transform:uppercase}
+.card-actions{display:flex;gap:7px;align-items:center}
+.btn{font-size:9px;letter-spacing:1px;font-weight:700;padding:5px 11px;border-radius:6px;cursor:pointer;text-transform:uppercase;border:none;transition:all .15s;font-family:'Barlow Condensed',sans-serif;display:inline-flex;align-items:center;gap:5px}
+.btn i{font-size:12px}
+.btn-ghost{background:transparent;color:var(--green-deep);border:0.5px solid rgba(58,140,58,0.35)}
+.btn-ghost:hover{background:var(--green-light)}
+.btn-red{background:var(--red-bg);color:var(--red);border:0.5px solid rgba(192,57,43,0.25)}
+.btn-red:hover{background:#fce4e2}
+.btn-blue{background:#ebf3fb;color:var(--blue);border:0.5px solid rgba(36,113,163,0.25)}
+.btn-blue:hover{background:#d8eaf7}
+.btn-dark{background:var(--dark);color:#fff}
+.btn-dark:hover{background:#2a3a2a}
+
+/* ── CHART WRAPPERS ──────────────────────────────────── */
+.chart-wrap{position:relative;width:100%;height:180px}
+.chart-md{position:relative;width:100%;height:145px}
+.chart-sm{position:relative;width:100%;height:115px}
+.chart-lg{position:relative;width:100%;height:230px}
+
+/* ── LEGEND ──────────────────────────────────────────── */
+.legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dim)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.legend-line{width:14px;height:2px;flex-shrink:0;border-radius:2px}
+.legend-dashed{width:14px;height:2px;flex-shrink:0;border-radius:2px;background:repeating-linear-gradient(90deg,rgba(26,42,26,.35) 0px,rgba(26,42,26,.35) 4px,transparent 4px,transparent 7px)}
+
+/* ── CHECK-IN FEED ───────────────────────────────────── */
+.ci-feed{display:flex;flex-direction:column;gap:6px}
+.ci-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--green-light);border-radius:8px;border:0.5px solid rgba(122,191,90,0.18)}
+.ci-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;font-family:'Barlow Condensed',sans-serif}
+.ci-name{font-size:12px;color:var(--text);font-weight:500}
+.ci-detail{font-size:10px;color:var(--dim);margin-top:1px}
+.ci-time{font-size:10px;color:var(--faint);flex-shrink:0}
+
+/* ── CLASS TABLE ─────────────────────────────────────── */
+.cls-table{width:100%;border-collapse:collapse}
+.cls-table th{font-size:9px;letter-spacing:1.5px;font-weight:600;text-transform:uppercase;color:var(--faint);padding:0 8px 10px;text-align:left;border-bottom:0.5px solid var(--border)}
+.cls-table td{padding:10px 8px;border-bottom:0.5px solid rgba(26,42,26,0.04);vertical-align:middle}
+.cls-table tr:last-child td{border-bottom:none}
+.cls-table tr:hover td{background:rgba(122,191,90,0.04)}
+.cls-name{font-size:12px;color:var(--text);font-weight:500}
+.cls-trainer{font-size:10px;color:var(--dim);margin-top:1px}
+.cls-time{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--dim);white-space:nowrap}
+.tag{font-size:9px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px;display:inline-block;white-space:nowrap}
+.tag-full{background:var(--red-bg);color:var(--red);border:0.5px solid rgba(192,57,43,0.2)}
+.tag-open{background:var(--green-light);color:var(--green-deep);border:0.5px solid rgba(58,140,58,0.2)}
+.tag-soon{background:var(--amber-bg);color:var(--amber);border:0.5px solid rgba(196,124,16,0.2)}
+.cap-wrap{width:70px}
+.cap-pct{font-size:9px;color:var(--faint);text-align:right;margin-bottom:3px}
+.cap-track{height:5px;background:rgba(26,42,26,0.07);border-radius:3px;overflow:hidden}
+.cap-fill{height:100%;border-radius:3px}
+
+/* ── TRAINER ROWS ────────────────────────────────────── */
+.tr-row{display:flex;align-items:center;gap:12px;padding:11px;border-radius:9px;border:0.5px solid var(--border);transition:background .15s;margin-bottom:8px}
+.tr-row:last-child{margin-bottom:0}
+.tr-row:hover{background:var(--green-light)}
+.tr-av{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;font-family:'Barlow Condensed',sans-serif}
+.tr-name{font-size:13px;color:var(--text);font-weight:500}
+.tr-spec{font-size:10px;color:var(--dim);margin-top:1px}
+.tr-sess{font-size:11px;color:var(--dim)}
+.tr-rate{font-size:10px;color:var(--green-deep);margin-top:2px;font-weight:600}
+.tr-rev{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
+
+/* ── CHURN TABLE ─────────────────────────────────────── */
+.risk-table{width:100%;border-collapse:collapse}
+.risk-table th{font-size:9px;letter-spacing:1.5px;font-weight:600;text-transform:uppercase;color:var(--faint);padding:0 8px 10px;text-align:left;border-bottom:0.5px solid var(--border)}
+.risk-table td{padding:10px 8px;border-bottom:0.5px solid rgba(26,42,26,0.04);vertical-align:middle}
+.risk-table tr:last-child td{border-bottom:none}
+.r-name{font-size:12px;color:var(--text);font-weight:500}
+.r-detail{font-size:10px;color:var(--dim);margin-top:1px}
+.r-bar-wrap{width:70px}
+.r-bar-track{height:5px;background:rgba(26,42,26,0.07);border-radius:3px;overflow:hidden}
+.r-bar-fill{height:100%;border-radius:3px}
+.r-lbl{font-size:10px;font-weight:700}
+
+/* ── TIER GRID ───────────────────────────────────────── */
+.tier-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tier-cell{background:var(--green-light);border:0.5px solid rgba(26,42,26,0.07);border-radius:9px;padding:13px;border-left:3px solid var(--tc,var(--green))}
+.tier-lbl{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+.tier-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text)}
+.tier-sub{font-size:9px;color:var(--dim);margin-top:2px}
+
+/* ── FINANCE ─────────────────────────────────────────── */
+.fin-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.fin-cell{background:var(--green-light);border-radius:10px;padding:14px;border:0.5px solid rgba(26,42,26,0.07)}
+.fin-lbl{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+.fin-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text)}
+.fin-sub{font-size:10px;color:var(--dim);margin-top:4px}
+
+/* ── DIVIDER ─────────────────────────────────────────── */
+.divider{height:0.5px;background:var(--border);margin:12px 0}
+
+/* ── TOAST ───────────────────────────────────────────── */
+#toastWrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--dark);color:#fff;padding:12px 18px;border-radius:9px;font-size:12px;letter-spacing:.4px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(0,0,0,.32);animation:toastIn .28s ease;border-left:3px solid var(--green);max-width:310px;pointer-events:auto}
+.toast i{color:var(--green);font-size:16px;flex-shrink:0}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}
+
+/* ── OVERVIEW SUMMARY BAR ────────────────────────────── */
+.summary-bar{background:linear-gradient(135deg,var(--dark) 0%,#2a3d2a 100%);border-radius:12px;padding:16px 22px;display:flex;align-items:center;gap:24px;color:#fff}
+.sb-item{display:flex;flex-direction:column;gap:2px;flex:1}
+.sb-label{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.35);text-transform:uppercase}
+.sb-val{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.4)}
+.sb-divider{width:0.5px;height:36px;background:rgba(255,255,255,.12);flex-shrink:0}
+
+/* ── MEMBER GROWTH STAT ──────────────────────────────── */
+.stat-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:5px;font-weight:600}
+.stat-up{background:var(--green-light);color:var(--green-deep)}
+.stat-dn{background:var(--red-bg);color:var(--red)}
+
+/* ── SCROLLABLE TABLE WRAPPER ────────────────────────── */
+.scroll-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <div class="brand-name">NOVA<span>PULSE</span></div>
+    <div class="brand-sub">Fitness &amp; Wellness Studio · Hamilton, ON</div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-pill"><div class="ldot"></div>LIVE · 187 MEMBERS IN</div>
+    <div class="clock-pill" id="clockDisplay">—</div>
+    <button class="export-btn" onclick="exportFullReport()"><i class="ti ti-download"></i>Export Report</button>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="navbar">
+  <div class="nav-tab active" data-tab="overview" onclick="switchTab('overview',this)"><i class="ti ti-layout-dashboard"></i>Overview</div>
+  <div class="nav-tab" data-tab="schedule" onclick="switchTab('schedule',this)"><i class="ti ti-calendar"></i>Schedule</div>
+  <div class="nav-tab" data-tab="members" onclick="switchTab('members',this)"><i class="ti ti-users"></i>Members</div>
+  <div class="nav-tab" data-tab="finance" onclick="switchTab('finance',this)"><i class="ti ti-chart-bar"></i>Finance</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 1 · OVERVIEW                                   -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+<div class="content">
+
+  <!-- Summary Banner -->
+  <div class="summary-bar">
+    <div class="sb-item"><div class="sb-label">Studio Status</div><div class="sb-val" style="color:#7abf5a">OPEN</div><div class="sb-sub">Until 10:00 PM today</div></div>
+    <div class="sb-divider"></div>
+    <div class="sb-item"><div class="sb-label">Members In</div><div class="sb-val">187</div><div class="sb-sub">Peak today: 9:00 AM</div></div>
+    <div class="sb-divider"></div>
+    <div class="sb-item"><div class="sb-label">Classes Running</div><div class="sb-val">3</div><div class="sb-sub">Next: Spin &amp; Burn 12PM</div></div>
+    <div class="sb-divider"></div>
+    <div class="sb-item"><div class="sb-label">Revenue MTD</div><div class="sb-val">$42,180</div><div class="sb-sub" style="color:#7abf5a">↑ 14% vs last month</div></div>
+    <div class="sb-divider"></div>
+    <div class="sb-item"><div class="sb-label">Churn Alerts</div><div class="sb-val" style="color:#c0392b">5</div><div class="sb-sub">Members at risk</div></div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi" style="--accent:#7abf5a">
+      <div class="kpi-icon"><i class="ti ti-currency-dollar"></i></div>
+      <div class="kpi-label">Monthly Revenue</div>
+      <div class="kpi-val">$42,180</div>
+      <div class="kpi-sub"><span class="up">↑ 14%</span> vs last month</div>
+    </div>
+    <div class="kpi" style="--accent:#3a8c8c">
+      <div class="kpi-icon"><i class="ti ti-users"></i></div>
+      <div class="kpi-label">Active Members</div>
+      <div class="kpi-val">1,284</div>
+      <div class="kpi-sub"><span class="up">+38</span> new this month</div>
+    </div>
+    <div class="kpi" style="--accent:#c47c10">
+      <div class="kpi-icon"><i class="ti ti-door-enter"></i></div>
+      <div class="kpi-label">Check-ins Today</div>
+      <div class="kpi-val">312</div>
+      <div class="kpi-sub">Peak at <span class="neutral">9:00 AM</span></div>
+    </div>
+    <div class="kpi" style="--accent:#7d3c98">
+      <div class="kpi-icon"><i class="ti ti-barbell"></i></div>
+      <div class="kpi-label">Classes Today</div>
+      <div class="kpi-val">14</div>
+      <div class="kpi-sub"><span class="dn">2</span> fully booked</div>
+    </div>
+    <div class="kpi" style="--accent:#c0392b">
+      <div class="kpi-icon"><i class="ti ti-trending-down"></i></div>
+      <div class="kpi-label">Churn Rate</div>
+      <div class="kpi-val">2.1%</div>
+      <div class="kpi-sub"><span class="up">↓ 0.4%</span> improvement</div>
+    </div>
+    <div class="kpi" style="--accent:#2471a3">
+      <div class="kpi-icon"><i class="ti ti-star"></i></div>
+      <div class="kpi-label">Avg Rating</div>
+      <div class="kpi-val">4.8★</div>
+      <div class="kpi-sub">from <span class="neutral">284</span> reviews</div>
+    </div>
+  </div>
+
+  <!-- Row 2: Revenue Chart + Live Feed -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Revenue vs Target — 2026</div>
+        <div class="card-actions">
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#7abf5a"></div>Actual</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(26,42,26,0.15)"></div>Target</div>
+          </div>
+          <button class="btn btn-ghost" onclick="dlChart('revenueChart','revenue-2026.png');dlCSV('revenue-2026.csv',[['Month','Actual','Target'],['Jan',34200,36000],['Feb',37800,38000],['Mar',35600,38000],['Apr',40100,40000],['May',42180,40000],['Jun',0,42000]])"><i class="ti ti-download"></i>CSV + PNG</button>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:10px">Revenue Insights — Jan to May 2026</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+        <div class="tier-cell" style="--tc:#7abf5a">
+          <div class="tier-lbl">YTD Total</div>
+          <div class="tier-val" style="color:#3a8c3a">$189,880</div>
+          <div class="tier-sub">Jan — May 2026</div>
+        </div>
+        <div class="tier-cell" style="--tc:#5a9c5a">
+          <div class="tier-lbl">Monthly Avg</div>
+          <div class="tier-val">$37,976</div>
+          <div class="tier-sub">5-month average</div>
+        </div>
+        <div class="tier-cell" style="--tc:#1a6a1a">
+          <div class="tier-lbl">Best Month</div>
+          <div class="tier-val">May</div>
+          <div class="tier-sub">$42,180 · ↑ 14%</div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-bottom:10px">Month vs Target</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px"><div style="font-size:10px;color:var(--dim);width:28px">Jan</div><div style="flex:1;height:6px;background:rgba(26,42,26,0.06);border-radius:3px;overflow:hidden"><div style="width:95%;height:100%;background:#c47c10;border-radius:3px"></div></div><div style="font-size:10px;color:var(--dim);width:54px;text-align:right">$34,200</div><div style="font-size:9px;font-weight:700;width:42px;text-align:right;color:#c0392b">-$1,800</div></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="font-size:10px;color:var(--dim);width:28px">Feb</div><div style="flex:1;height:6px;background:rgba(26,42,26,0.06);border-radius:3px;overflow:hidden"><div style="width:99.5%;height:100%;background:#c47c10;border-radius:3px"></div></div><div style="font-size:10px;color:var(--dim);width:54px;text-align:right">$37,800</div><div style="font-size:9px;font-weight:700;width:42px;text-align:right;color:#c0392b">-$200</div></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="font-size:10px;color:var(--dim);width:28px">Mar</div><div style="flex:1;height:6px;background:rgba(26,42,26,0.06);border-radius:3px;overflow:hidden"><div style="width:93.7%;height:100%;background:#c0392b;border-radius:3px"></div></div><div style="font-size:10px;color:var(--dim);width:54px;text-align:right">$35,600</div><div style="font-size:9px;font-weight:700;width:42px;text-align:right;color:#c0392b">-$2,400</div></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="font-size:10px;color:var(--dim);width:28px">Apr</div><div style="flex:1;height:6px;background:rgba(26,42,26,0.06);border-radius:3px;overflow:hidden"><div style="width:100%;height:100%;background:#7abf5a;border-radius:3px"></div></div><div style="font-size:10px;color:var(--dim);width:54px;text-align:right">$40,100</div><div style="font-size:9px;font-weight:700;width:42px;text-align:right;color:#3a8c3a">+$100</div></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="font-size:10px;color:var(--dim);width:28px">May</div><div style="flex:1;height:6px;background:rgba(26,42,26,0.06);border-radius:3px;overflow:hidden"><div style="width:100%;height:100%;background:#3a8c3a;border-radius:3px"></div></div><div style="font-size:10px;color:var(--dim);width:54px;text-align:right">$42,180</div><div style="font-size:9px;font-weight:700;width:42px;text-align:right;color:#3a8c3a">+$2,180</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Live Check-ins</div>
+        <button class="btn btn-ghost" onclick="switchTab('members',document.querySelector('[data-tab=members]'))"><i class="ti ti-arrow-right"></i>View All</button>
+      </div>
+      <div class="ci-feed">
+        <div class="ci-item"><div class="ldot"></div><div class="ci-av" style="background:#4a7a3a">SK</div><div style="flex:1"><div class="ci-name">Sara Kim</div><div class="ci-detail">Elite · HIIT Class</div></div><div class="ci-time">10:12</div></div>
+        <div class="ci-item"><div class="ldot"></div><div class="ci-av" style="background:#3a4a8c">MR</div><div style="flex:1"><div class="ci-name">Marco Russo</div><div class="ci-detail">Pro · Weight Training</div></div><div class="ci-time">10:09</div></div>
+        <div class="ci-item"><div class="ldot"></div><div class="ci-av" style="background:#7a3a5a">AP</div><div style="flex:1"><div class="ci-name">Anika Patel</div><div class="ci-detail">Basic · Yoga Flow</div></div><div class="ci-time">10:07</div></div>
+        <div class="ci-item"><div class="ldot"></div><div class="ci-av" style="background:#5a4a2a">TL</div><div style="flex:1"><div class="ci-name">Tom Leung</div><div class="ci-detail">Elite · Spin Class</div></div><div class="ci-time">10:03</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:10px">Hourly Check-ins — Today</div>
+      <div class="chart-sm"><canvas id="checkinChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 3: Today's Classes | Trainer Performance | Churn Risk — each card one topic -->
+  <div class="row3">
+
+    <!-- Card: Today's Classes only -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Today's Classes</div>
+        <button class="btn btn-ghost" onclick="switchTab('schedule',document.querySelector('[data-tab=schedule]'))"><i class="ti ti-calendar"></i>Full Schedule</button>
+      </div>
+      <table class="cls-table">
+        <thead><tr><th>Time</th><th>Class</th><th>Cap.</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="cls-time">6:00 AM</td><td><div class="cls-name">Morning HIIT</div><div class="cls-trainer">Coach Maya · Studio A</div></td><td><div class="cap-wrap"><div class="cap-pct">100%</div><div class="cap-track"><div class="cap-fill" style="width:100%;background:#c0392b"></div></div></div></td><td><span class="tag tag-full">Full</span></td></tr>
+          <tr><td class="cls-time">7:30 AM</td><td><div class="cls-name">Yoga Flow</div><div class="cls-trainer">Coach Priya · Studio B</div></td><td><div class="cap-wrap"><div class="cap-pct">72%</div><div class="cap-track"><div class="cap-fill" style="width:72%;background:#7abf5a"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+          <tr><td class="cls-time">9:00 AM</td><td><div class="cls-name">Spin &amp; Burn</div><div class="cls-trainer">Coach Zack · Cycle Room</div></td><td><div class="cap-wrap"><div class="cap-pct">100%</div><div class="cap-track"><div class="cap-fill" style="width:100%;background:#c0392b"></div></div></div></td><td><span class="tag tag-full">Full</span></td></tr>
+          <tr><td class="cls-time">10:30 AM</td><td><div class="cls-name">Strength &amp; Power</div><div class="cls-trainer">Coach Ines · Studio A</div></td><td><div class="cap-wrap"><div class="cap-pct">55%</div><div class="cap-track"><div class="cap-fill" style="width:55%;background:#c47c10"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+          <tr><td class="cls-time">12:00 PM</td><td><div class="cls-name">Pilates Core</div><div class="cls-trainer">Coach Lena · Studio B</div></td><td><div class="cap-wrap"><div class="cap-pct">88%</div><div class="cap-track"><div class="cap-fill" style="width:88%;background:#3a8c3a"></div></div></div></td><td><span class="tag tag-soon">2 Left</span></td></tr>
+          <tr><td class="cls-time">2:00 PM</td><td><div class="cls-name">Barre Fusion</div><div class="cls-trainer">Coach Maya · Studio B</div></td><td><div class="cap-wrap"><div class="cap-pct">40%</div><div class="cap-track"><div class="cap-fill" style="width:40%;background:#7abf5a"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+          <tr><td class="cls-time">4:00 PM</td><td><div class="cls-name">Boxing HIIT</div><div class="cls-trainer">Coach Zack · Studio A</div></td><td><div class="cap-wrap"><div class="cap-pct">65%</div><div class="cap-track"><div class="cap-fill" style="width:65%;background:#7abf5a"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Card: Trainer Performance only -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Trainer Performance</div>
+        <button class="btn btn-ghost" onclick="dlCSV('trainers-may2026.csv',[['Trainer','Specialty','Sessions','Rating','Revenue'],['Coach Maya','HIIT / Strength',42,'4.9',5040],['Coach Zack','Spin / Cardio',38,'4.8',4560],['Coach Priya','Yoga / Pilates',34,'5.0',4080],['Coach Ines','Strength / CrossFit',28,'4.7',3360],['Coach Lena','Pilates / Core',25,'4.8',3000]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div class="tr-row"><div class="tr-av" style="background:#4a7a3a">MY</div><div style="flex:1"><div class="tr-name">Coach Maya</div><div class="tr-spec">HIIT · Strength</div></div><div style="text-align:right;margin-right:12px"><div class="tr-sess">42 sessions</div><div class="tr-rate">★ 4.9</div></div><div class="tr-rev">$5,040</div></div>
+      <div class="tr-row"><div class="tr-av" style="background:#3a4a7a">ZK</div><div style="flex:1"><div class="tr-name">Coach Zack</div><div class="tr-spec">Spin · Cardio</div></div><div style="text-align:right;margin-right:12px"><div class="tr-sess">38 sessions</div><div class="tr-rate">★ 4.8</div></div><div class="tr-rev">$4,560</div></div>
+      <div class="tr-row"><div class="tr-av" style="background:#6a3a5a">PR</div><div style="flex:1"><div class="tr-name">Coach Priya</div><div class="tr-spec">Yoga · Pilates</div></div><div style="text-align:right;margin-right:12px"><div class="tr-sess">34 sessions</div><div class="tr-rate" style="color:#7abf5a">★ 5.0</div></div><div class="tr-rev">$4,080</div></div>
+      <div class="tr-row"><div class="tr-av" style="background:#5a4a2a">IN</div><div style="flex:1"><div class="tr-name">Coach Ines</div><div class="tr-spec">Strength · CrossFit</div></div><div style="text-align:right;margin-right:12px"><div class="tr-sess">28 sessions</div><div class="tr-rate" style="color:#c47c10">★ 4.7</div></div><div class="tr-rev">$3,360</div></div>
+      <div class="tr-row"><div class="tr-av" style="background:#3a6a5a">LN</div><div style="flex:1"><div class="tr-name">Coach Lena</div><div class="tr-spec">Pilates · Core</div></div><div style="text-align:right;margin-right:12px"><div class="tr-sess">25 sessions</div><div class="tr-rate">★ 4.8</div></div><div class="tr-rev">$3,000</div></div>
+    </div>
+
+    <!-- Card: Churn Risk only -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Churn Risk Monitor</div>
+        <button class="btn btn-red" onclick="sendAllOffers()"><i class="ti ti-send"></i>Send All Offers</button>
+      </div>
+      <table class="risk-table">
+        <thead><tr><th>Member</th><th>Risk</th><th></th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="r-name">David Park</div><div class="r-detail">No visit · 22 days · Elite</div></td><td><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:90%;background:#c0392b"></div></div></div></td><td><div class="r-lbl" style="color:#c0392b">High</div></td><td><button class="btn btn-red" onclick="sendOffer('David Park')">Offer</button></td></tr>
+          <tr><td><div class="r-name">Nadia Flores</div><div class="r-detail">No visit · 18 days · Pro</div></td><td><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:75%;background:#d35400"></div></div></div></td><td><div class="r-lbl" style="color:#d35400">High</div></td><td><button class="btn btn-red" onclick="sendOffer('Nadia Flores')">Offer</button></td></tr>
+          <tr><td><div class="r-name">Cam Briggs</div><div class="r-detail">No visit · 14 days · Basic</div></td><td><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:55%;background:#c47c10"></div></div></div></td><td><div class="r-lbl" style="color:#c47c10">Med</div></td><td><button class="btn btn-ghost" onclick="sendOffer('Cam Briggs')">Offer</button></td></tr>
+          <tr><td><div class="r-name">Yuki Tanaka</div><div class="r-detail">No visit · 10 days · Pro</div></td><td><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:38%;background:#7abf5a"></div></div></div></td><td><div class="r-lbl" style="color:#6a8a1a">Low</div></td><td><button class="btn btn-ghost" onclick="sendOffer('Yuki Tanaka')">Offer</button></td></tr>
+          <tr><td><div class="r-name">Rosa Marin</div><div class="r-detail">No visit · 8 days · Elite</div></td><td><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:25%;background:#3a8c3a"></div></div></div></td><td><div class="r-lbl" style="color:#3a8c3a">Low</div></td><td><button class="btn btn-ghost" onclick="sendOffer('Rosa Marin')">Offer</button></td></tr>
+          <tr><td><div class="r-name">James Carter</div><div class="r-detail">No visit · 7 days · Basic</div></td><td><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:18%;background:#3a8c3a"></div></div></div></td><td><div class="r-lbl" style="color:#3a8c3a">Low</div></td><td><button class="btn btn-ghost" onclick="sendOffer('James Carter')">Offer</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Row 4: Membership Snapshot | Member Trend — their own dedicated row -->
+  <div class="row-eq">
+
+    <!-- Card: Membership Tiers -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Membership Breakdown</div>
+        <button class="btn btn-ghost" onclick="switchTab('members',document.querySelector('[data-tab=members]'))"><i class="ti ti-users"></i>Full View</button>
+      </div>
+      <div style="display:flex;gap:20px;align-items:center">
+        <div style="width:150px;height:150px;flex-shrink:0"><canvas id="tierChart"></canvas></div>
+        <div style="flex:1">
+          <div class="tier-grid">
+            <div class="tier-cell" style="--tc:#a0c878"><div class="tier-lbl">Basic</div><div class="tier-val">486</div><div class="tier-sub">$39/mo · 38%</div></div>
+            <div class="tier-cell" style="--tc:#5a9c5a"><div class="tier-lbl">Pro</div><div class="tier-val">524</div><div class="tier-sub">$69/mo · 41%</div></div>
+            <div class="tier-cell" style="--tc:#1a6a1a"><div class="tier-lbl">Elite</div><div class="tier-val">274</div><div class="tier-sub">$99/mo · 21%</div></div>
+            <div class="tier-cell" style="--tc:#3a8c3a;background:#f0f9f0"><div class="tier-lbl">MRR</div><div class="tier-val" style="color:#3a8c3a">$42k</div><div class="tier-sub">Monthly recurring</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: New vs Returning Members -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">New vs Returning Members</div>
+        <button class="btn btn-ghost" onclick="switchTab('members',document.querySelector('[data-tab=members]'))"><i class="ti ti-arrow-right"></i>Details</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-line" style="background:#7abf5a"></div>New Members</div>
+        <div class="legend-item"><div class="legend-dashed"></div>Returning Members</div>
+      </div>
+      <div class="chart-md"><canvas id="memberChart"></canvas></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+        <div style="background:var(--green-light);border-radius:8px;padding:10px;border:0.5px solid rgba(26,42,26,0.07)">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:4px">New — May</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700">68</div>
+          <div style="font-size:10px;color:#3a8c3a;font-weight:600">↑ 11% vs Apr</div>
+        </div>
+        <div style="background:var(--green-light);border-radius:8px;padding:10px;border:0.5px solid rgba(26,42,26,0.07)">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:4px">Returning — May</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700">380</div>
+          <div style="font-size:10px;color:#3a8c3a;font-weight:600">↑ 12% vs Apr</div>
+        </div>
+        <div style="background:var(--green-light);border-radius:8px;padding:10px;border:0.5px solid rgba(26,42,26,0.07)">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:4px">Retention Rate</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700">97.9%</div>
+          <div style="font-size:10px;color:#3a8c3a;font-weight:600">↑ 0.4% improved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 2 · SCHEDULE                                   -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="tab-schedule" class="tab-panel">
+<div class="content">
+
+  <div class="row-eq">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Class Capacity Overview — Today</div>
+        <button class="btn btn-ghost" onclick="dlCSV('class-schedule-today.csv',[['Time','Class','Trainer','Room','Capacity %','Status'],['6:00 AM','Morning HIIT','Coach Maya','Studio A','100%','Full'],['7:30 AM','Yoga Flow','Coach Priya','Studio B','72%','Open'],['9:00 AM','Spin & Burn','Coach Zack','Cycle Room','100%','Full'],['10:30 AM','Strength & Power','Coach Ines','Studio A','55%','Open'],['12:00 PM','Pilates Core','Coach Lena','Studio B','88%','2 Spots Left'],['2:00 PM','Barre Fusion','Coach Maya','Studio B','40%','Open'],['4:00 PM','Boxing HIIT','Coach Zack','Studio A','65%','Open'],['5:30 PM','Yoga Restore','Coach Priya','Studio B','80%','3 Spots Left'],['7:00 PM','Evening Strength','Coach Ines','Studio A','50%','Open']])"><i class="ti ti-download"></i>Export Schedule</button>
+      </div>
+      <div class="chart-lg"><canvas id="capacityChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Weekly Class Bookings</div>
+        <button class="btn btn-ghost" onclick="dlCSV('weekly-bookings.csv',[['Day','Bookings','Classes'],['Mon',98,12],['Tue',112,13],['Wed',105,12],['Thu',124,14],['Fri',138,15],['Sat',187,14],['Sun',76,9]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#7abf5a"></div>Total Bookings</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(26,42,26,0.15)"></div>Classes Offered</div>
+      </div>
+      <div class="chart-lg"><canvas id="weeklyChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Full Schedule — Saturday, May 17 2026</div>
+      <button class="btn btn-ghost" onclick="dlCSV('full-schedule.csv',[['Time','Class','Trainer','Room','Spots Total','Spots Filled','Capacity %'],['6:00 AM','Morning HIIT','Coach Maya','Studio A',20,20,'100%'],['7:30 AM','Yoga Flow','Coach Priya','Studio B',18,13,'72%'],['9:00 AM','Spin & Burn','Coach Zack','Cycle Room',25,25,'100%'],['10:30 AM','Strength & Power','Coach Ines','Studio A',20,11,'55%'],['12:00 PM','Pilates Core','Coach Lena','Studio B',16,14,'88%'],['2:00 PM','Barre Fusion','Coach Maya','Studio B',15,6,'40%'],['4:00 PM','Boxing HIIT','Coach Zack','Studio A',20,13,'65%'],['5:30 PM','Yoga Restore','Coach Priya','Studio B',20,16,'80%'],['7:00 PM','Evening Strength','Coach Ines','Studio A',20,10,'50%']])"><i class="ti ti-download"></i>Export Full List</button>
+    </div>
+    <div class="scroll-wrap">
+    <table class="cls-table">
+      <thead><tr><th>Time</th><th>Class</th><th>Trainer</th><th>Room</th><th>Spots</th><th>Capacity</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="cls-time">6:00 AM</td><td><div class="cls-name">Morning HIIT</div></td><td><div class="cls-trainer">Coach Maya</div></td><td><div class="cls-trainer">Studio A</div></td><td><div class="cls-trainer">20/20</div></td><td><div class="cap-wrap"><div class="cap-pct">100%</div><div class="cap-track"><div class="cap-fill" style="width:100%;background:#c0392b"></div></div></div></td><td><span class="tag tag-full">Full</span></td></tr>
+        <tr><td class="cls-time">7:30 AM</td><td><div class="cls-name">Yoga Flow</div></td><td><div class="cls-trainer">Coach Priya</div></td><td><div class="cls-trainer">Studio B</div></td><td><div class="cls-trainer">13/18</div></td><td><div class="cap-wrap"><div class="cap-pct">72%</div><div class="cap-track"><div class="cap-fill" style="width:72%;background:#7abf5a"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+        <tr><td class="cls-time">9:00 AM</td><td><div class="cls-name">Spin &amp; Burn</div></td><td><div class="cls-trainer">Coach Zack</div></td><td><div class="cls-trainer">Cycle Room</div></td><td><div class="cls-trainer">25/25</div></td><td><div class="cap-wrap"><div class="cap-pct">100%</div><div class="cap-track"><div class="cap-fill" style="width:100%;background:#c0392b"></div></div></div></td><td><span class="tag tag-full">Full</span></td></tr>
+        <tr><td class="cls-time">10:30 AM</td><td><div class="cls-name">Strength &amp; Power</div></td><td><div class="cls-trainer">Coach Ines</div></td><td><div class="cls-trainer">Studio A</div></td><td><div class="cls-trainer">11/20</div></td><td><div class="cap-wrap"><div class="cap-pct">55%</div><div class="cap-track"><div class="cap-fill" style="width:55%;background:#c47c10"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+        <tr><td class="cls-time">12:00 PM</td><td><div class="cls-name">Pilates Core</div></td><td><div class="cls-trainer">Coach Lena</div></td><td><div class="cls-trainer">Studio B</div></td><td><div class="cls-trainer">14/16</div></td><td><div class="cap-wrap"><div class="cap-pct">88%</div><div class="cap-track"><div class="cap-fill" style="width:88%;background:#3a8c3a"></div></div></div></td><td><span class="tag tag-soon">2 Left</span></td></tr>
+        <tr><td class="cls-time">2:00 PM</td><td><div class="cls-name">Barre Fusion</div></td><td><div class="cls-trainer">Coach Maya</div></td><td><div class="cls-trainer">Studio B</div></td><td><div class="cls-trainer">6/15</div></td><td><div class="cap-wrap"><div class="cap-pct">40%</div><div class="cap-track"><div class="cap-fill" style="width:40%;background:#7abf5a"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+        <tr><td class="cls-time">4:00 PM</td><td><div class="cls-name">Boxing HIIT</div></td><td><div class="cls-trainer">Coach Zack</div></td><td><div class="cls-trainer">Studio A</div></td><td><div class="cls-trainer">13/20</div></td><td><div class="cap-wrap"><div class="cap-pct">65%</div><div class="cap-track"><div class="cap-fill" style="width:65%;background:#7abf5a"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+        <tr><td class="cls-time">5:30 PM</td><td><div class="cls-name">Yoga Restore</div></td><td><div class="cls-trainer">Coach Priya</div></td><td><div class="cls-trainer">Studio B</div></td><td><div class="cls-trainer">16/20</div></td><td><div class="cap-wrap"><div class="cap-pct">80%</div><div class="cap-track"><div class="cap-fill" style="width:80%;background:#3a8c3a"></div></div></div></td><td><span class="tag tag-soon">3 Left</span></td></tr>
+        <tr><td class="cls-time">7:00 PM</td><td><div class="cls-name">Evening Strength</div></td><td><div class="cls-trainer">Coach Ines</div></td><td><div class="cls-trainer">Studio A</div></td><td><div class="cls-trainer">10/20</div></td><td><div class="cap-wrap"><div class="cap-pct">50%</div><div class="cap-track"><div class="cap-fill" style="width:50%;background:#c47c10"></div></div></div></td><td><span class="tag tag-open">Open</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 3 · MEMBERS                                    -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="tab-members" class="tab-panel">
+<div class="content">
+
+  <div class="row-eq">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Member Growth — Jan to May 2026</div>
+        <button class="btn btn-ghost" onclick="dlCSV('member-growth.csv',[['Month','Total Members','New','Churned','Net'],['Jan 2026',1180,38,12,26],['Feb 2026',1210,44,14,30],['Mar 2026',1230,38,18,20],['Apr 2026',1246,52,36,16],['May 2026',1284,68,30,38]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-line" style="background:#7abf5a"></div>Total Members</div>
+      </div>
+      <div class="chart-lg"><canvas id="growthChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Membership Tier Breakdown</div>
+        <button class="btn btn-ghost" onclick="dlCSV('tiers.csv',[['Tier','Members','Monthly Fee','Revenue'],['Basic',486,39,18954],['Pro',524,69,36156],['Elite',274,99,27126]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <div style="width:160px;height:160px;flex-shrink:0"><canvas id="memberTierChart"></canvas></div>
+        <div style="flex:1">
+          <div class="tier-grid">
+            <div class="tier-cell" style="--tc:#a0c878"><div class="tier-lbl">Basic</div><div class="tier-val">486</div><div class="tier-sub">$39/mo · 38%</div></div>
+            <div class="tier-cell" style="--tc:#5a9c5a"><div class="tier-lbl">Pro</div><div class="tier-val">524</div><div class="tier-sub">$69/mo · 41%</div></div>
+            <div class="tier-cell" style="--tc:#1a6a1a"><div class="tier-lbl">Elite</div><div class="tier-val">274</div><div class="tier-sub">$99/mo · 21%</div></div>
+            <div class="tier-cell" style="--tc:#3a8c3a;background:#f0f9f0"><div class="tier-lbl">Total</div><div class="tier-val" style="color:#3a8c3a">1,284</div><div class="tier-sub">Active members</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-eq">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">New vs Returning — Monthly</div>
+        <button class="btn btn-ghost" onclick="dlCSV('new-vs-returning.csv',[['Month','New Members','Returning Members'],['Jan',38,280],['Feb',52,310],['Mar',44,295],['Apr',61,340],['May',68,380]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-line" style="background:#7abf5a"></div>New</div>
+        <div class="legend-item"><div class="legend-dashed"></div>Returning</div>
+      </div>
+      <div class="chart-lg"><canvas id="newRetChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Churn Rate Trend</div>
+        <button class="btn btn-ghost" onclick="dlCSV('churn-trend.csv',[['Month','Churn Rate %','Members Churned'],['Jan',2.8,33],['Feb',2.6,31],['Mar',2.4,29],['Apr',2.5,31],['May',2.1,27]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-line" style="background:#c0392b"></div>Churn Rate %</div>
+      </div>
+      <div class="chart-lg"><canvas id="churnChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Churn Risk — Full Member List</div>
+      <div class="card-actions">
+        <button class="btn btn-red" onclick="sendAllOffers()"><i class="ti ti-send"></i>Send All Offers</button>
+        <button class="btn btn-ghost" onclick="dlCSV('churn-risk.csv',[['Name','Tier','Days Since Visit','Risk Level','Last Class'],['David Park','Elite',22,'High','Spin & Burn'],['Nadia Flores','Pro',18,'High','Yoga Flow'],['Cam Briggs','Basic',14,'Medium','Morning HIIT'],['Yuki Tanaka','Pro',10,'Low','Weight Training'],['Rosa Marin','Elite',8,'Low','Pilates Core'],['James Carter','Basic',7,'Low','Boxing HIIT'],['Priya Sharma','Pro',6,'Low','Yoga Flow']])"><i class="ti ti-download"></i>Export Risk List</button>
+      </div>
+    </div>
+    <div class="scroll-wrap">
+    <table class="risk-table">
+      <thead><tr><th>Member</th><th>Tier</th><th>Days Since Visit</th><th>Last Class</th><th>Risk Level</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><div class="r-name">David Park</div></td><td><span class="tag tag-full">Elite</span></td><td><div style="font-size:12px;color:#c0392b;font-weight:600">22 days</div></td><td><div class="r-detail">Spin &amp; Burn</div></td><td><div style="display:flex;align-items:center;gap:8px"><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:90%;background:#c0392b"></div></div></div><div class="r-lbl" style="color:#c0392b">High</div></div></td><td><button class="btn btn-red" onclick="sendOffer('David Park')"><i class="ti ti-send"></i>Send Offer</button></td></tr>
+        <tr><td><div class="r-name">Nadia Flores</div></td><td><span class="tag tag-soon">Pro</span></td><td><div style="font-size:12px;color:#d35400;font-weight:600">18 days</div></td><td><div class="r-detail">Yoga Flow</div></td><td><div style="display:flex;align-items:center;gap:8px"><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:75%;background:#d35400"></div></div></div><div class="r-lbl" style="color:#d35400">High</div></div></td><td><button class="btn btn-red" onclick="sendOffer('Nadia Flores')"><i class="ti ti-send"></i>Send Offer</button></td></tr>
+        <tr><td><div class="r-name">Cam Briggs</div></td><td><span class="tag tag-open">Basic</span></td><td><div style="font-size:12px;color:#c47c10;font-weight:600">14 days</div></td><td><div class="r-detail">Morning HIIT</div></td><td><div style="display:flex;align-items:center;gap:8px"><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:55%;background:#c47c10"></div></div></div><div class="r-lbl" style="color:#c47c10">Med</div></div></td><td><button class="btn btn-ghost" onclick="sendOffer('Cam Briggs')"><i class="ti ti-send"></i>Send Offer</button></td></tr>
+        <tr><td><div class="r-name">Yuki Tanaka</div></td><td><span class="tag tag-soon">Pro</span></td><td><div style="font-size:12px;color:#6a8a1a;font-weight:600">10 days</div></td><td><div class="r-detail">Weight Training</div></td><td><div style="display:flex;align-items:center;gap:8px"><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:38%;background:#7abf5a"></div></div></div><div class="r-lbl" style="color:#6a8a1a">Low</div></div></td><td><button class="btn btn-ghost" onclick="sendOffer('Yuki Tanaka')"><i class="ti ti-send"></i>Send Offer</button></td></tr>
+        <tr><td><div class="r-name">Rosa Marin</div></td><td><span class="tag tag-full">Elite</span></td><td><div style="font-size:12px;color:#3a8c3a;font-weight:600">8 days</div></td><td><div class="r-detail">Pilates Core</div></td><td><div style="display:flex;align-items:center;gap:8px"><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:25%;background:#3a8c3a"></div></div></div><div class="r-lbl" style="color:#3a8c3a">Low</div></div></td><td><button class="btn btn-ghost" onclick="sendOffer('Rosa Marin')"><i class="ti ti-send"></i>Send Offer</button></td></tr>
+        <tr><td><div class="r-name">James Carter</div></td><td><span class="tag tag-open">Basic</span></td><td><div style="font-size:12px;color:#3a8c3a;font-weight:600">7 days</div></td><td><div class="r-detail">Boxing HIIT</div></td><td><div style="display:flex;align-items:center;gap:8px"><div class="r-bar-wrap"><div class="r-bar-track"><div class="r-bar-fill" style="width:20%;background:#3a8c3a"></div></div></div><div class="r-lbl" style="color:#3a8c3a">Low</div></div></td><td><button class="btn btn-ghost" onclick="sendOffer('James Carter')"><i class="ti ti-send"></i>Send Offer</button></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 4 · FINANCE                                    -->
+<!-- ════════════════════════════════════════════════════ -->
+<div id="tab-finance" class="tab-panel">
+<div class="content">
+
+  <!-- Finance KPI Row -->
+  <div class="fin-row">
+    <div class="fin-cell">
+      <div class="fin-lbl">Monthly Revenue</div>
+      <div class="fin-val">$42,180</div>
+      <div class="fin-sub"><span style="color:#3a8c3a;font-weight:600">↑ 14%</span> vs April</div>
+    </div>
+    <div class="fin-cell">
+      <div class="fin-lbl">Monthly Recurring</div>
+      <div class="fin-val" style="color:#3a8c3a">$42,078</div>
+      <div class="fin-sub">From membership fees</div>
+    </div>
+    <div class="fin-cell">
+      <div class="fin-lbl">Operating Costs</div>
+      <div class="fin-val" style="color:#c0392b">$28,400</div>
+      <div class="fin-sub">67.3% of revenue</div>
+    </div>
+    <div class="fin-cell">
+      <div class="fin-lbl">Net Profit</div>
+      <div class="fin-val" style="color:#3a8c3a">$13,780</div>
+      <div class="fin-sub">32.7% margin</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Revenue vs Target — 2026</div>
+        <div class="card-actions">
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#7abf5a"></div>Actual</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(26,42,26,0.15)"></div>Target</div>
+          </div>
+          <button class="btn btn-ghost" onclick="dlCSV('finance-revenue-2026.csv',[['Month','Actual Revenue','Target Revenue','Variance'],['Jan',34200,36000,-1800],['Feb',37800,38000,-200],['Mar',35600,38000,-2400],['Apr',40100,40000,100],['May',42180,40000,2180],['Jun',0,42000,'—'],['Jul',0,44000,'—'],['Aug',0,44000,'—'],['Sep',0,42000,'—'],['Oct',0,44000,'—'],['Nov',0,46000,'—'],['Dec',0,48000,'—']])"><i class="ti ti-download"></i>Export</button>
+        </div>
+      </div>
+      <div class="chart-lg"><canvas id="finRevChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Revenue by Membership Tier</div>
+        <button class="btn btn-ghost" onclick="dlCSV('revenue-by-tier.csv',[['Month','Basic ($39)','Pro ($69)','Elite ($99)','Total'],['Jan',17316,31972,23452,72740],['Feb',17706,32686,23974,74366],['Mar',18135,33351,24453,75939],['Apr',18954,36156,27126,82236],['May',18954,36156,27126,82236]])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#a0c878"></div>Basic</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#5a9c5a"></div>Pro</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1a6a1a"></div>Elite</div>
+      </div>
+      <div class="chart-lg"><canvas id="tierRevChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Expense Breakdown — May 2026</div>
+        <button class="btn btn-ghost" onclick="dlCSV('expenses-may2026.csv',[['Category','Amount','% of Revenue'],['Staff Wages',14800,'35.1%'],['Rent & Utilities',6200,'14.7%'],['Equipment',3400,'8.1%'],['Marketing',2100,'5.0%'],['Insurance',1200,'2.8%'],['Supplies',700,'1.7%']])"><i class="ti ti-download"></i>Export</button>
+      </div>
+      <div style="width:180px;height:180px;margin:0 auto"><canvas id="expenseChart"></canvas></div>
+      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="font-size:10px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#4a7a3a;flex-shrink:0"></div><div style="color:var(--dim)">Staff <strong style="color:var(--text)">$14,800</strong></div></div>
+        <div style="font-size:10px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#7abf5a;flex-shrink:0"></div><div style="color:var(--dim)">Rent <strong style="color:var(--text)">$6,200</strong></div></div>
+        <div style="font-size:10px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#a0c878;flex-shrink:0"></div><div style="color:var(--dim)">Equipment <strong style="color:var(--text)">$3,400</strong></div></div>
+        <div style="font-size:10px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#3a8c8c;flex-shrink:0"></div><div style="color:var(--dim)">Marketing <strong style="color:var(--text)">$2,100</strong></div></div>
+        <div style="font-size:10px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#2471a3;flex-shrink:0"></div><div style="color:var(--dim)">Insurance <strong style="color:var(--text)">$1,200</strong></div></div>
+        <div style="font-size:10px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#7d3c98;flex-shrink:0"></div><div style="color:var(--dim)">Supplies <strong style="color:var(--text)">$700</strong></div></div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:span 2">
+      <div class="card-hdr">
+        <div class="card-title">Monthly P&amp;L Summary</div>
+        <button class="btn btn-ghost" onclick="dlCSV('pnl-summary-2026.csv',[['Month','Revenue','Costs','Net Profit','Margin %'],['Jan',34200,24100,10100,'29.5%'],['Feb',37800,25800,12000,'31.7%'],['Mar',35600,24900,10700,'30.1%'],['Apr',40100,26600,13500,'33.7%'],['May',42180,28400,13780,'32.7%']])"><i class="ti ti-download"></i>Export P&amp;L</button>
+      </div>
+      <div class="scroll-wrap">
+      <table class="cls-table">
+        <thead><tr><th>Month</th><th>Revenue</th><th>Operating Costs</th><th>Net Profit</th><th>Margin</th><th>vs Target</th></tr></thead>
+        <tbody>
+          <tr><td>January 2026</td><td><strong>$34,200</strong></td><td>$24,100</td><td style="color:#3a8c3a"><strong>$10,100</strong></td><td><span class="stat-badge stat-up">29.5%</span></td><td><span class="stat-badge stat-dn">-$1,800</span></td></tr>
+          <tr><td>February 2026</td><td><strong>$37,800</strong></td><td>$25,800</td><td style="color:#3a8c3a"><strong>$12,000</strong></td><td><span class="stat-badge stat-up">31.7%</span></td><td><span class="stat-badge stat-dn">-$200</span></td></tr>
+          <tr><td>March 2026</td><td><strong>$35,600</strong></td><td>$24,900</td><td style="color:#3a8c3a"><strong>$10,700</strong></td><td><span class="stat-badge stat-up">30.1%</span></td><td><span class="stat-badge stat-dn">-$2,400</span></td></tr>
+          <tr><td>April 2026</td><td><strong>$40,100</strong></td><td>$26,600</td><td style="color:#3a8c3a"><strong>$13,500</strong></td><td><span class="stat-badge stat-up">33.7%</span></td><td><span class="stat-badge stat-up">+$100</span></td></tr>
+          <tr><td>May 2026</td><td><strong>$42,180</strong></td><td>$28,400</td><td style="color:#3a8c3a"><strong>$13,780</strong></td><td><span class="stat-badge stat-up">32.7%</span></td><td><span class="stat-badge stat-up">+$2,180</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastWrap"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── CLOCK ───────────────────────────────────────────────
+function updateClock(){
+  const n=new Date(),days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const h=n.getHours(),m=String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('clockDisplay').textContent=days[n.getDay()]+' · '+(h%12||12)+':'+m+' '+(h>=12?'PM':'AM');
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── TAB SWITCHING ────────────────────────────────────────
+function switchTab(id,el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  else document.querySelector('[data-tab='+id+']').classList.add('active');
+  if(!chartsInit[id]) initCharts(id);
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function toast(msg,icon='ti-circle-check'){
+  const w=document.getElementById('toastWrap');
+  const t=document.createElement('div'); t.className='toast';
+  t.innerHTML=`<i class="ti ${icon}"></i><span>${msg}</span>`;
+  w.appendChild(t);
+  setTimeout(()=>{t.style.animation='toastOut .28s ease forwards';setTimeout(()=>t.remove(),300)},3000);
+}
+
+// ── DOWNLOADS ─────────────────────────────────────────────
+function dlCSV(filename,rows){
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  toast('Downloaded: '+filename,'ti-download');
+}
+function dlChart(chartId,filename){
+  const c=document.getElementById(chartId);
+  if(!c){toast('Chart not ready yet','ti-alert-circle');return;}
+  const url=c.toDataURL('image/png');
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  toast('Downloaded: '+filename,'ti-photo');
+}
+
+// ── OFFER ACTIONS ────────────────────────────────────────
+function sendOffer(name){toast(`Re-engagement offer sent to ${name}!`,'ti-send')}
+function sendAllOffers(){
+  ['David Park','Nadia Flores','Cam Briggs','Yuki Tanaka','Rosa Marin'].forEach((n,i)=>{
+    setTimeout(()=>toast(`Offer sent to ${n}`,'ti-send'),i*400);
+  });
+}
+
+// ── EXPORT FULL REPORT ─────────────────────────────────────
+function exportFullReport(){
+  dlCSV('novapulse-full-report-may2026.csv',[
+    ['NovaPulse Fitness — Owner Report','May 17 2026',''],
+    ['','',''],
+    ['KPI','Value','Change'],
+    ['Monthly Revenue','$42,180','↑ 14%'],
+    ['Active Members',1284,'+38 new'],
+    ['Check-ins Today',312,'Peak 9AM'],
+    ['Classes Today',14,'2 full'],
+    ['Churn Rate','2.1%','↓ 0.4%'],
+    ['Avg Rating','4.8★','284 reviews'],
+    ['','',''],
+    ['Membership Tiers','Count','Revenue'],
+    ['Basic',486,'$18,954'],
+    ['Pro',524,'$36,156'],
+    ['Elite',274,'$27,126'],
+    ['','',''],
+    ['Net Profit','$13,780','32.7% margin'],
+  ]);
+}
+
+// ── CHART DEFAULTS ─────────────────────────────────────────
+const chartsInit={overview:false,schedule:false,members:false,finance:false};
+const tip={backgroundColor:'#fff',borderColor:'rgba(26,42,26,0.12)',borderWidth:1,titleColor:'rgba(26,42,26,0.4)',bodyColor:'#1a2a1a',padding:10,cornerRadius:6};
+const gridC='rgba(26,42,26,0.05)',tickC='rgba(26,42,26,0.35)';
+const baseScale={x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10}},border:{display:false}},y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10}},border:{display:false}}};
+
+function initCharts(tab){
+  chartsInit[tab]=true;
+
+  if(tab==='overview'){
+    new Chart(document.getElementById('revenueChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[
+      {label:'Actual',data:[34200,37800,35600,40100,42180,null],backgroundColor:'rgba(122,191,90,0.8)',borderRadius:5,borderSkipped:false},
+      {label:'Target',data:[36000,38000,38000,40000,40000,42000],backgroundColor:'rgba(26,42,26,0.1)',borderRadius:5,borderSkipped:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y.toLocaleString()}}},scales:{...baseScale,y:{...baseScale.y,ticks:{...baseScale.y.ticks,callback:v=>'$'+(v/1000).toFixed(0)+'k'}}}}});
+
+    new Chart(document.getElementById('checkinChart'),{type:'bar',data:{labels:['6am','7am','8am','9am','10am','11am','12pm','1pm','2pm','3pm'],datasets:[{data:[42,68,95,124,87,64,78,52,38,24],backgroundColor:['rgba(122,191,90,.35)','rgba(122,191,90,.45)','rgba(122,191,90,.6)','rgba(122,191,90,.9)','rgba(122,191,90,.7)','rgba(122,191,90,.5)','rgba(122,191,90,.6)','rgba(122,191,90,.45)','rgba(122,191,90,.35)','rgba(122,191,90,.25)'],borderRadius:3,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip},scales:{x:{grid:{display:false},ticks:{color:tickC,font:{size:9}},border:{display:false}},y:{grid:{color:gridC},ticks:{color:tickC,font:{size:9}},border:{display:false}}}}});
+
+    const tierCenterPlugin={id:'tierCenter',afterDraw(chart){
+      const{ctx,chartArea:{top,bottom,left,right}}=chart;
+      const cx=(left+right)/2, cy=(top+bottom)/2;
+      ctx.save();
+      ctx.font='700 17px "Barlow Condensed", sans-serif';
+      ctx.fillStyle='#1a2a1a'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('1,284',cx,cy-7);
+      ctx.font='500 9px Barlow, sans-serif';
+      ctx.fillStyle='rgba(26,42,26,0.4)';
+      ctx.fillText('MEMBERS',cx,cy+9);
+      ctx.restore();
+    }};
+    new Chart(document.getElementById('tierChart'),{
+      type:'doughnut', plugins:[tierCenterPlugin],
+      data:{labels:['Basic','Pro','Elite'],datasets:[{
+        data:[486,524,274],
+        backgroundColor:['#a0c878','#5a9c5a','#1a6a1a'],
+        borderWidth:3, borderColor:'#fff', hoverOffset:4
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
+        plugins:{
+          legend:{display:true,position:'bottom',labels:{font:{size:10},color:tickC,padding:10,boxWidth:10,boxHeight:10}},
+          tooltip:{...tip,callbacks:{label:function(c){
+            var tot=c.dataset.data.reduce(function(a,b){return a+b;},0);
+            var pct=Math.round(c.parsed/tot*100);
+            return ' '+c.label+': '+c.parsed.toLocaleString()+' members ('+pct+'%)';
+          }}}
+        }
+      }
+    });
+
+    new Chart(document.getElementById('memberChart'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May'],datasets:[
+      {label:'New',data:[38,52,44,61,68],borderColor:'#7abf5a',borderWidth:2,pointRadius:4,pointBackgroundColor:'#7abf5a',fill:false,tension:.4},
+      {label:'Returning',data:[280,310,295,340,380],borderColor:'rgba(26,42,26,0.3)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:'rgba(26,42,26,0.3)',fill:false,tension:.4,borderDash:[5,4]}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip},scales:baseScale}});
+  }
+
+  if(tab==='schedule'){
+    new Chart(document.getElementById('capacityChart'),{type:'bar',data:{
+      labels:['7PM Strength','5:30PM Yoga','4PM Boxing','2PM Barre','12PM Pilates','10:30AM Strength','9AM Spin','7:30AM Yoga','6AM HIIT'],
+      datasets:[{label:'Capacity %',data:[50,80,65,40,88,55,100,72,100],backgroundColor:d=>['#c0392b','#3a8c3a','#7abf5a','#7abf5a','#3a8c3a','#c47c10','#c0392b','#7abf5a','#c0392b'][d.dataIndex],borderRadius:4,borderSkipped:false}]
+    },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>c.parsed.x+'% capacity'}}},scales:{x:{...baseScale.x,max:100,ticks:{...baseScale.x.ticks,callback:v=>v+'%'}},y:{...baseScale.y,ticks:{color:tickC,font:{size:10}}}}}});
+
+    new Chart(document.getElementById('weeklyChart'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[
+      {label:'Bookings',data:[98,112,105,124,138,187,76],backgroundColor:'rgba(122,191,90,0.75)',borderRadius:4,borderSkipped:false,yAxisID:'y'},
+      {label:'Classes',data:[12,13,12,14,15,14,9],backgroundColor:'rgba(26,42,26,0.1)',borderRadius:4,borderSkipped:false,yAxisID:'y1'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip},scales:{...baseScale,y:{...baseScale.y,position:'left'},y1:{grid:{display:false},ticks:{color:tickC,font:{size:10}},border:{display:false},position:'right'}}}});
+  }
+
+  if(tab==='members'){
+    new Chart(document.getElementById('growthChart'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May'],datasets:[{label:'Total Members',data:[1180,1210,1230,1246,1284],borderColor:'#7abf5a',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#7abf5a',fill:true,backgroundColor:'rgba(122,191,90,0.08)',tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip},scales:baseScale}});
+
+    new Chart(document.getElementById('memberTierChart'),{type:'doughnut',data:{labels:['Basic','Pro','Elite'],datasets:[{data:[486,524,274],backgroundColor:['#a0c878','#5a9c5a','#1a6a1a'],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:tip}}});
+
+    new Chart(document.getElementById('newRetChart'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May'],datasets:[
+      {label:'New',data:[38,52,44,61,68],borderColor:'#7abf5a',borderWidth:2,pointRadius:4,pointBackgroundColor:'#7abf5a',fill:true,backgroundColor:'rgba(122,191,90,0.07)',tension:.4},
+      {label:'Returning',data:[280,310,295,340,380],borderColor:'rgba(26,42,26,0.35)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:'rgba(26,42,26,0.35)',fill:false,tension:.4,borderDash:[5,4]}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip},scales:baseScale}});
+
+    new Chart(document.getElementById('churnChart'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May'],datasets:[{label:'Churn %',data:[2.8,2.6,2.4,2.5,2.1],borderColor:'#c0392b',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#c0392b',fill:true,backgroundColor:'rgba(192,57,43,0.06)',tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>c.parsed.y+'% churn rate'}}},scales:{...baseScale,y:{...baseScale.y,ticks:{...baseScale.y.ticks,callback:v=>v+'%'},suggestedMin:1.5}}}});
+  }
+
+  if(tab==='finance'){
+    new Chart(document.getElementById('finRevChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[
+      {label:'Actual',data:[34200,37800,35600,40100,42180,null,null,null,null,null,null,null],backgroundColor:'rgba(122,191,90,0.8)',borderRadius:4,borderSkipped:false},
+      {label:'Target',data:[36000,38000,38000,40000,40000,42000,44000,44000,42000,44000,46000,48000],backgroundColor:'rgba(26,42,26,0.08)',borderRadius:4,borderSkipped:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y.toLocaleString()}}},scales:{...baseScale,y:{...baseScale.y,ticks:{...baseScale.y.ticks,callback:v=>'$'+(v/1000).toFixed(0)+'k'}}}}});
+
+    new Chart(document.getElementById('tierRevChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May'],datasets:[
+      {label:'Basic',data:[17316,17706,18135,18954,18954],backgroundColor:'#a0c878',borderRadius:3,borderSkipped:false,stack:'rev'},
+      {label:'Pro',data:[31972,32686,33351,36156,36156],backgroundColor:'#5a9c5a',borderRadius:0,borderSkipped:false,stack:'rev'},
+      {label:'Elite',data:[23452,23974,24453,27126,27126],backgroundColor:'#1a6a1a',borderRadius:[3,3,0,0],borderSkipped:false,stack:'rev'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y.toLocaleString()}}},scales:{...baseScale,y:{...baseScale.y,ticks:{...baseScale.y.ticks,callback:v=>'$'+(v/1000).toFixed(0)+'k'},stacked:true},x:{...baseScale.x,stacked:true}}}});
+
+    new Chart(document.getElementById('expenseChart'),{type:'doughnut',data:{labels:['Staff','Rent','Equipment','Marketing','Insurance','Supplies'],datasets:[{data:[14800,6200,3400,2100,1200,700],backgroundColor:['#4a7a3a','#7abf5a','#a0c878','#3a8c8c','#2471a3','#7d3c98'],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>c.label+': $'+c.parsed.toLocaleString()}}}}});
+  }
+}
+
+// Init overview charts immediately
+initCharts('overview');
+</script>
+</body>
+</html>
