@@ -11,7 +11,7 @@
 :root{
   --dark:#1a2a1a;--green:#7abf5a;--green-deep:#3a8c3a;--green-light:#f0f7eb;
   --bg:#eef3ee;--card:#fff;--border:rgba(26,42,26,0.09);
-  --text:#1a2a1a;--dim:rgba(26,42,26,0.45);--faint:rgba(26,42,26,0.22);
+  --text:#1a2a1a;--dim:rgba(26,42,26,0.65);--faint:rgba(26,42,26,0.45);
   --red:#c0392b;--red-bg:#fdf0ef;--amber:#c47c10;--amber-bg:#fdf5e8;
   --blue:#2471a3;--purple:#7d3c98;
   --shadow:0 2px 10px rgba(26,42,26,0.07);
@@ -50,7 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .kpi:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,42,26,0.1)}
 .kpi-icon{font-size:18px;color:var(--accent,var(--green));margin-bottom:6px;opacity:.7}
 .kpi-label{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
-.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;color:var(--text);line-height:1}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums lining-nums}
 .kpi-sub{font-size:10px;color:var(--dim);margin-top:5px}
 .kpi-sub .up{color:var(--green-deep);font-weight:600}
 .kpi-sub .dn{color:var(--red);font-weight:600}
