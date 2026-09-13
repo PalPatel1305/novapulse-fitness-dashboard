@@ -178,6 +178,28 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 
 /* ── SCROLLABLE TABLE WRAPPER ────────────────────────── */
 .scroll-wrap{overflow-x:auto}
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+html,body{max-width:100%;overflow-x:hidden}
+@media (max-width:900px){
+  .topbar{padding:10px 16px;height:auto;flex-wrap:wrap;gap:8px}
+  .topbar-right{flex-wrap:wrap;gap:6px}
+  .navbar{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .nav-tab{padding:10px 12px;white-space:nowrap}
+  .content{padding:16px;gap:12px}
+  .summary-bar{flex-wrap:wrap;gap:14px;padding:16px}
+  .sb-divider{display:none}
+  .sb-item{flex:1 1 40%}
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important}
+  .row2,.row3,.row-eq{grid-template-columns:1fr!important}
+  .tier-grid{grid-template-columns:1fr}
+  .fin-row{grid-template-columns:repeat(2,1fr)!important}
+  .card{overflow-x:auto}
+}
+@media (max-width:480px){
+  .kpi-row{grid-template-columns:1fr 1fr!important}
+  .fin-row{grid-template-columns:1fr!important}
+}
 </style>
 </head>
 <body>
